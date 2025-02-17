@@ -61,9 +61,17 @@ public class Main {
             };
             String startState = "q0";
             String[] acceptingStates = {"q2"};
+            LanguageInformation Info = new LanguageInformation();
+            Info.addPatern(traditionalComments, TokenType.COMMENT, new String[] {"q0,a->q1",
+            		"q0,b->q0",
+            		"q1,a->q1",
+            		"q1,b->q2",
+            		"q2,a->q1",
+            		"q2,b->q0"}, "q0", new String[] {"q2"} );
             
-            LanguagePattern p = new LanguagePattern(new TokenPattern(traditionalComments,TokenType.COMMENT),rules,startState,acceptingStates);
-            p.dfa.printTransitionTable();
+            Info.print();
+//            LanguagePattern p = new LanguagePattern(new TokenPattern(traditionalComments,TokenType.COMMENT),rules,startState,acceptingStates);
+//            p.dfa.printTransitionTable();
         } catch (IOException e) {
             e.printStackTrace();
         }
