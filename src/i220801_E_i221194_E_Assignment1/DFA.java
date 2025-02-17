@@ -123,17 +123,17 @@ class DFA {
             System.out.println();
         }
 
-        // Print additional information about default transitions
-        if (!defaultTransitions.isEmpty()) {
-            System.out.println("\nDefault Transitions:");
-            System.out.println("These transitions are taken when no other transition matches the input symbol.");
-            for (Map.Entry<State, State> entry : defaultTransitions.entrySet()) {
-                System.out.printf("From %s: any unspecified input → %s%n", 
-                    entry.getKey().getName(), 
-                    entry.getValue().getName());
-            }
-        }
-        
+//        // Print additional information about default transitions
+//        if (!defaultTransitions.isEmpty()) {
+//            System.out.println("\nDefault Transitions:");
+//            System.out.println("These transitions are taken when no other transition matches the input symbol.");
+//            for (Map.Entry<State, State> entry : defaultTransitions.entrySet()) {
+//                System.out.printf("From %s: any unspecified input → %s%n", 
+//                    entry.getKey().getName(), 
+//                    entry.getValue().getName());
+//            }
+//        }
+//        
         System.out.println();
     }
 }
