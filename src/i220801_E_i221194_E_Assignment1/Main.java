@@ -75,8 +75,8 @@ public class Main {
                     "q0,#->q1",
                     "q1,#->q2",
                     "q2,any->q2",
-                    "q2,\r->q3",
-                    "q2,\n->q3",  
+                    "q2,\\r->q3",
+                    "q2,\\n->q3",  
                 }, "q0", new String[] {"q3"} );
             
             Info.print();

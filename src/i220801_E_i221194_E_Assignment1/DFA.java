@@ -5,8 +5,8 @@ import java.util.*;
 class DFA {
     private State startState;
     private Set<State> states;
-    private Set<Character> alphabet;
-    private Map<State, Map<Character, State>> transitions;
+    private Set<String> alphabet;
+    private Map<State, Map<String, State>> transitions;
     private Map<State, State> defaultTransitions; // New: for handling "else" cases
 
     public DFA(State startState) {
@@ -34,7 +34,7 @@ class DFA {
         defaultTransitions.put(from, to);
     }
     
-    public void addTransition(State from, char symbol, State to) {
+    public void addTransition(State from, String symbol, State to) {
         if (!states.contains(from) || !states.contains(to)) {
             throw new IllegalArgumentException("States must be added to DFA first");
         }
@@ -46,7 +46,7 @@ class DFA {
         State currentState = startState;
         
         for (char c : input.toCharArray()) {
-            Map<Character, State> stateTransitions = transitions.get(currentState);
+            Map<String, State> stateTransitions = transitions.get(currentState);
             State nextState = stateTransitions.get(c);
             
             if (nextState == null) {
@@ -70,7 +70,7 @@ class DFA {
         // Get sorted list of states and alphabet for consistent output
         List<State> sortedStates = new ArrayList<>(states);
         sortedStates.sort(Comparator.comparing(State::getName));
-        List<Character> sortedAlphabet = new ArrayList<>(alphabet);
+        List<String> sortedAlphabet = new ArrayList<>(alphabet);
         Collections.sort(sortedAlphabet);
 
         // Calculate column widths
@@ -90,8 +90,8 @@ class DFA {
 
         // Print alphabet header
         System.out.printf("%-" + stateColWidth + "s |", "State");
-        for (char symbol : sortedAlphabet) {
-            System.out.printf(" %-" + stateColWidth + "c |", symbol);
+        for (String symbol : sortedAlphabet) {
+            System.out.printf(" %-" + stateColWidth + "s |", symbol);
         }
         // Add else column
         System.out.printf(" %-" + stateColWidth + "s |", "any");
@@ -109,7 +109,7 @@ class DFA {
             System.out.printf("%-" + stateColWidth + "s |", stateName);
 
             // Print transition for each input symbol
-            for (char symbol : sortedAlphabet) {
+            for (String symbol : sortedAlphabet) {
                 State nextState = transitions.get(state).get(symbol);
                 String transitionStr = nextState != null ? nextState.getName() : "-";
                 System.out.printf(" %-" + stateColWidth + "s |", transitionStr);
