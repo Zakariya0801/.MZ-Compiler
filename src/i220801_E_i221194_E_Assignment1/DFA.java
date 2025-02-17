@@ -7,7 +7,8 @@ class DFA {
     private Set<State> states;
     private Set<Character> alphabet;
     private Map<State, Map<Character, State>> transitions;
-    
+    private Map<State, State> defaultTransitions; // New: for handling "else" cases
+
     public DFA(State startState) {
         this.startState = startState;
         this.states = new HashSet<>();
@@ -15,6 +16,7 @@ class DFA {
         this.alphabet = new HashSet<>();
         this.transitions = new HashMap<>();
         this.transitions.put(startState, new HashMap<>());
+        this.defaultTransitions = new HashMap<>(); // Initialize default transitions map
     }
     
     public void addState(State state) {
@@ -22,6 +24,14 @@ class DFA {
         if (!transitions.containsKey(state)) {
             transitions.put(state, new HashMap<>());
         }
+    }
+    
+    // New method to add default transition
+    public void addDefaultTransition(State from, State to) {
+        if (!states.contains(from) || !states.contains(to)) {
+            throw new IllegalArgumentException("States must be added to DFA first");
+        }
+        defaultTransitions.put(from, to);
     }
     
     public void addTransition(State from, char symbol, State to) {
@@ -36,32 +46,25 @@ class DFA {
         State currentState = startState;
         
         for (char c : input.toCharArray()) {
-            if (!alphabet.contains(c)) {
-                return false;  // Invalid symbol
-            }
-            
             Map<Character, State> stateTransitions = transitions.get(currentState);
-            if (!stateTransitions.containsKey(c)) {
-                return false;  // No transition defined
+            State nextState = stateTransitions.get(c);
+            
+            if (nextState == null) {
+                // If no explicit transition, try default transition
+                nextState = defaultTransitions.get(currentState);
+                if (nextState == null) {
+                    return false; // No transition found
+                }
             }
             
-            currentState = stateTransitions.get(c);
+            currentState = nextState;
         }
         
         return currentState.isAccepting();
     }
-    
-    public State getStartState() {
-        return startState;
-    }
-    
-    public Set<State> getStates() {
-        return Collections.unmodifiableSet(states);
-    }
-    
-    public Set<Character> getAlphabet() {
-        return Collections.unmodifiableSet(alphabet);
-    }
+
+    // Modified createFromRules to handle else transitions
+   
     
     public void printTransitionTable() {
         // Get sorted list of states and alphabet for consistent output
@@ -71,26 +74,32 @@ class DFA {
         Collections.sort(sortedAlphabet);
 
         // Calculate column widths
-        int stateColWidth = Math.max(10, 
-            states.stream()
-                  .map(s -> s.getName().length())
-                  .max(Comparator.naturalOrder())
-                  .orElse(10));
+        int stateColWidth = Math.max(10,
+            Math.max(
+                states.stream()
+                    .map(s -> s.getName().length())
+                    .max(Comparator.naturalOrder())
+                    .orElse(10),
+                "else".length()
+            )
+        );
 
         // Print header
         System.out.println("\nTransition Table:");
-        System.out.println("(\" * indicates accepting state)");
-        
+        System.out.println("(* indicates accepting state)");
+
         // Print alphabet header
         System.out.printf("%-" + stateColWidth + "s |", "State");
         for (char symbol : sortedAlphabet) {
             System.out.printf(" %-" + stateColWidth + "c |", symbol);
         }
+        // Add else column
+        System.out.printf(" %-" + stateColWidth + "s |", "else");
         System.out.println();
 
         // Print separator
         String separator = "-".repeat(stateColWidth) + "+";
-        separator = separator + ("-".repeat(stateColWidth + 2) + "+").repeat(sortedAlphabet.size());
+        separator = separator + ("-".repeat(stateColWidth + 2) + "+").repeat(sortedAlphabet.size() + 1); // +1 for else column
         System.out.println(separator);
 
         // Print transitions for each state
@@ -105,8 +114,26 @@ class DFA {
                 String transitionStr = nextState != null ? nextState.getName() : "-";
                 System.out.printf(" %-" + stateColWidth + "s |", transitionStr);
             }
+
+            // Print default transition if it exists
+            State defaultState = defaultTransitions.get(state);
+            String defaultTransitionStr = defaultState != null ? defaultState.getName() : "-";
+            System.out.printf(" %-" + stateColWidth + "s |", defaultTransitionStr);
+            
             System.out.println();
         }
+
+        // Print additional information about default transitions
+        if (!defaultTransitions.isEmpty()) {
+            System.out.println("\nDefault Transitions:");
+            System.out.println("These transitions are taken when no other transition matches the input symbol.");
+            for (Map.Entry<State, State> entry : defaultTransitions.entrySet()) {
+                System.out.printf("From %s: any unspecified input → %s%n", 
+                    entry.getKey().getName(), 
+                    entry.getValue().getName());
+            }
+        }
+        
         System.out.println();
     }
 }

@@ -14,9 +14,9 @@ public class LanguagePattern {
 		dfa = createFromRules(rules,startState,acceptingStates);
 	}
 	
-	private DFA createFromRules(String[] rules, String startStateName, String[] acceptingStates) {
-		Map<String, State> stateMap = new HashMap<>();
-		Set<String> acceptingStateSet = new HashSet<>(Arrays.asList(acceptingStates));
+	public static DFA createFromRules(String[] rules, String startStateName, String[] acceptingStates) {
+        Map<String, State> stateMap = new HashMap<>();
+        Set<String> acceptingStateSet = new HashSet<>(Arrays.asList(acceptingStates));
         
         // Create the start state
         State startState = new State(startStateName, acceptingStateSet.contains(startStateName));
@@ -26,7 +26,6 @@ public class LanguagePattern {
         
         // Process each rule
         for (String rule : rules) {
-            // Expected format: "currentState,input->nextState"
             String[] parts = rule.split("->");
             if (parts.length != 2) {
                 throw new IllegalArgumentException("Invalid rule format: " + rule);
@@ -38,7 +37,7 @@ public class LanguagePattern {
             }
             
             String currentStateName = leftParts[0].trim();
-            char input = leftParts[1].trim().charAt(0);
+            String input = leftParts[1].trim();
             String nextStateName = parts[1].trim();
             
             // Create states if they don't exist
@@ -47,10 +46,16 @@ public class LanguagePattern {
             State nextState = stateMap.computeIfAbsent(nextStateName,
                 name -> new State(name, acceptingStateSet.contains(name)));
             
-            // Add states and transition to DFA
+            // Add states to DFA
             dfa.addState(currentState);
             dfa.addState(nextState);
-            dfa.addTransition(currentState, input, nextState);
+            
+            // Handle the transition
+            if (input.equals("else")) {
+                dfa.addDefaultTransition(currentState, nextState);
+            } else {
+                dfa.addTransition(currentState, input.charAt(0), nextState);
+            }
         }
         
         return dfa;

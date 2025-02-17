@@ -52,24 +52,27 @@ public class Main {
             table.printSymbolTable();
             
             String[] rules = {
-            		"q0,a->q1",
-            		"q0,b->q0",
-            		"q1,a->q1",
-            		"q1,b->q2",
-            		"q2,a->q1",
-            		"q2,b->q0"
-            };
-            String startState = "q0";
-            String[] acceptingStates = {"q2"};
-            LanguageInformation Info = new LanguageInformation();
-            Info.addPatern(traditionalComments, TokenType.COMMENT, new String[] {"q0,a->q1",
-            		"q0,b->q0",
-            		"q1,a->q1",
-            		"q1,b->q2",
-            		"q2,a->q1",
-            		"q2,b->q0"}, "q0", new String[] {"q2"} );
-            
-            Info.print();
+            	    "q0,x->q1",    // x goes to q1
+            	    "q0,else->q2", // anything else goes to q2
+            	    "q1,x->q1",    // stay in q1 for x
+            	    "q1,else->q2", // go to q2 for non-x
+            	    "q2,x->q1",    // go to q1 for x
+            	    "q2,else->q2"  // stay in q2 for non-x
+            	};
+
+            	DFA dfa = LanguagePattern.createFromRules(rules, "q0", new String[]{"q2"});
+            	dfa.printTransitionTable();
+//            String startState = "q0";
+//            String[] acceptingStates = {"q2"};
+//            LanguageInformation Info = new LanguageInformation();
+//            Info.addPatern(traditionalComments, TokenType.COMMENT, new String[] {"q0,a->q1",
+//            		"q0,b->q0",
+//            		"q1,a->q1",
+//            		"q1,b->q2",
+//            		"q2,a->q1",
+//            		"q2,b->q0"}, "q0", new String[] {"q2"} );
+//            
+//            Info.print();
 //            LanguagePattern p = new LanguagePattern(new TokenPattern(traditionalComments,TokenType.COMMENT),rules,startState,acceptingStates);
 //            p.dfa.printTransitionTable();
         } catch (IOException e) {
