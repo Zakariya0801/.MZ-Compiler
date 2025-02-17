@@ -54,7 +54,7 @@ public class LanguagePattern {
             if (input.equals("else")) {
                 dfa.addDefaultTransition(currentState, nextState);
             } else {
-                dfa.addTransition(currentState, input.charAt(0), nextState);
+                dfa.addTransition(currentState, input, nextState);
             }
         }
         
