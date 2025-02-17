@@ -1,6 +1,5 @@
 package i220801_E_i221194_E_Assignment1;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,8 +16,7 @@ public class Main {
 			System.out.println(str);
 			String content = Files.readString(Path.of(str));
             System.out.println(content);
-            
-            String traditionalComments = "#[^#]*#";
+            String traditionalComments = "#*[^#]*#";
             String endOfLineComments = "##[^\\r\\n]*\\r?\\n?";
             String identifiers = "[a-z][a-z]*";
             String numbers = "[0-9]+";
@@ -53,26 +51,35 @@ public class Main {
             
             String[] rules = {
             	    "q0,x->q1",    // x goes to q1
-            	    "q0,else->q2", // anything else goes to q2
+            	    "q0,any->q0", // anything else goes to q2
             	    "q1,x->q1",    // stay in q1 for x
-            	    "q1,else->q2", // go to q2 for non-x
+            	    "q1,any->q2", // go to q2 for non-x
             	    "q2,x->q1",    // go to q1 for x
-            	    "q2,else->q2"  // stay in q2 for non-x
+            	    "q2,any->q2"  // stay in q2 for non-x
             	};
 
-            	DFA dfa = LanguagePattern.createFromRules(rules, "q0", new String[]{"q2"});
-            	dfa.printTransitionTable();
-//            String startState = "q0";
-//            String[] acceptingStates = {"q2"};
-//            LanguageInformation Info = new LanguageInformation();
-//            Info.addPatern(traditionalComments, TokenType.COMMENT, new String[] {"q0,a->q1",
-//            		"q0,b->q0",
-//            		"q1,a->q1",
-//            		"q1,b->q2",
-//            		"q2,a->q1",
-//            		"q2,b->q0"}, "q0", new String[] {"q2"} );
-//            
-//            Info.print();
+            String startState = "q0";
+            String[] acceptingStates = {"q2"};
+            LanguageInformation Info = new LanguageInformation();
+            Info.addPatern(traditionalComments, TokenType.COMMENT, new String[] {
+                    "q0,#->q1",
+                    "q1,*->q2",
+                    "q2,*->q3",
+                    "q3,#->q4",
+                    "q1,any->q0",
+                    "q0,any->q0",
+                    "q2,any->q2",
+                    "q3,any->q2",  
+                }, "q0", new String[] {"q4"} );
+            Info.addPatern(endOfLineComments, TokenType.COMMENT, new String[] {
+                    "q0,#->q1",
+                    "q1,#->q2",
+                    "q2,any->q2",
+                    "q2,\r->q3",
+                    "q2,\n->q3",  
+                }, "q0", new String[] {"q3"} );
+            
+            Info.print();
 //            LanguagePattern p = new LanguagePattern(new TokenPattern(traditionalComments,TokenType.COMMENT),rules,startState,acceptingStates);
 //            p.dfa.printTransitionTable();
         } catch (IOException e) {

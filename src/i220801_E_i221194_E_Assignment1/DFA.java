@@ -80,7 +80,7 @@ class DFA {
                     .map(s -> s.getName().length())
                     .max(Comparator.naturalOrder())
                     .orElse(10),
-                "else".length()
+                "any".length()
             )
         );
 
@@ -94,7 +94,7 @@ class DFA {
             System.out.printf(" %-" + stateColWidth + "c |", symbol);
         }
         // Add else column
-        System.out.printf(" %-" + stateColWidth + "s |", "else");
+        System.out.printf(" %-" + stateColWidth + "s |", "any");
         System.out.println();
 
         // Print separator
