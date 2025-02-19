@@ -6,19 +6,8 @@ import java.util.List;
 public class Token {
 	private TokenType type;
     private String value;
-    private static List<String> dataTypes = null;
     public Token(TokenType type, String value) {
-    	if(dataTypes == null) {
-    		dataTypes = new ArrayList<>();
-    		String[] str = {
-    				"integer", 
-		    		"character",
-		    		"void",
-		    		"decimal"
-    		};
-    		for(int i=0 ; i<str.length ; i++) 
-    			dataTypes.add(str[i]);
-    	}
+    
         this.type = type;
         this.value = value;
     }
@@ -39,11 +28,7 @@ public class Token {
         return value;
     }
     
-    public boolean isDatatype() {
-    	if(this.type != TokenType.KEYWORD) return false;
-    	if(dataTypes.contains(value)) return true;
-    	return false;
-    }
+   
     @Override
     public String toString() {
         return "Token{" + "type=" + type + ", value='" + value + '\'' + '}';

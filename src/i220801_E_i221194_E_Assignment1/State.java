@@ -1,31 +1,16 @@
 package i220801_E_i221194_E_Assignment1;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 class State {
-    private String name;
-    private boolean isAccepting;
+    int id;
+    Map<Character, List<State>> transitions = new HashMap<>();
+    boolean isFinal = false;
 
-    public State(String name, boolean isAccepting) {
-        this.name = name;
-        this.isAccepting = isAccepting;
+    State(int id) {
+        this.id = id;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isAccepting() {
-        return isAccepting;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        State state = (State) o;
-        return name.equals(state.name);
-    }
-
-    
 }
