@@ -43,7 +43,6 @@ public class ThompsonAlgorithm{
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
             String match = matcher.group(0); // Get the full matched substring
-            System.out.println(match);
             match = expandRange(match);
             result.add(match);
         }

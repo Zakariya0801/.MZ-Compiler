@@ -195,7 +195,6 @@ public class DFAMinimizer {
         
         // Set final states
         for (int finalState : dfa.final_states) {
-        	System.out.println("final = " + finalState);
             minimizedDFA.final_states.add(stateToPartition.get(finalState));
         }
         
