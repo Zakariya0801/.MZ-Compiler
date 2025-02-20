@@ -11,32 +11,42 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
 public class ThompsonAlgorithm{
-    /*
-        Trans - object is used as a tuple of 3 items to depict transitions
-            (state from, symbol of tranistion path, state to)
-    */
-
-    /*
-        NFA - serves as the graph that represents the Non-Deterministic
-            Finite Automata. Will use this to better combine the states.
-    */
-
-	/*
-	    kleene() - Highest Precedence regular expression operator. Thompson
-	        algoritm for kleene star.
-	*/
-	
+   
+	public static String expandRange(String input) {
+		Pattern pattern = Pattern.compile("\\[(.)-(.)\\]");
+        Matcher matcher = pattern.matcher(input);
+        
+        if (matcher.find()) {
+            char start = (matcher.group(1).charAt(0));
+            char end = (matcher.group(2).charAt(0));
+            
+            if (start > end) {
+                throw new IllegalArgumentException("Invalid range: start must be less than or equal to end");
+            }
+            
+            StringBuilder expanded = new StringBuilder("(");
+            for (char i = start; i <= end; i++) {
+                expanded.append(i);
+                if (i != end) {
+                    expanded.append("|");
+                }
+            }
+            expanded.append(")");
+            
+            return input.substring(0, matcher.start()-1) +  expanded.toString() + input.substring(matcher.end()+1, input.length());
+        }
+        return input; // Return input as is if no range is found
+    }
 	public static List<String> extractParenthesesContent(String input) {
         List<String> result = new ArrayList<>();
         Pattern pattern = Pattern.compile("\\((.*?)\\)\\*?");
         Matcher matcher = pattern.matcher(input);
-        
         while (matcher.find()) {
             String match = matcher.group(0); // Get the full matched substring
-            result.add(match);
             System.out.println(match);
+            match = expandRange(match);
+            result.add(match);
         }
-        
         return result;
     }
 	public static NFA kleene(NFA n){
@@ -95,77 +105,26 @@ public class ThompsonAlgorithm{
 	    
 	    ans.final_state = m.final_state+maxi;
 	    return ans;
-	    //*/
-	    /* ~~~ Makes new NFA, rather than mod n. I believe my above
-	        sacrifice trades non-changed original for speed. Not much gain
-	        though. And could be implemented in the other functions.
 	    
-	    NFA result = new NFA(n.states.size() + m.states.size());
-	
-	    // copy NFA n's transitions to result
-	    for (Trans t: n.transitions){
-	        result.transitions.add(new Trans(t.state_from, t.state_to,
-	            t.trans_symbol));
-	    }
-	
-	    // empty transition from final state of n to beginning state of m
-	    result.transitions.add(new Trans(n.final_state, n.states.size(), 
-	        'E'));
-	
-	    // copy NFA m's transitions to result
-	    for (Trans t: m.transitions){
-	        result.transitions.add(new Trans(t.state_from + n.states.size(),
-	            t.state_to + n.states.size(), t.trans_symbol));
-	    }
-	    
-	    result.final_state = n.final_state + m.final_state - 1;
-	    return result;
-	    */
 	}
-	public static NFA concat(NFA n, NFA m){
-	    ///*
-	    m.states.remove(0); // delete m's initial state
-	    
-	    // copy NFA m's transitions to n, and handles connecting n & m
-	    for (Trans t: m.transitions){
-	        n.transitions.add(new Trans(t.state_from + n.states.size()-1,
-	            t.state_to + n.states.size() - 1, t.trans_symbol));
-	    }
-	
-	    // take m and combine to n after erasing inital m state
-	    for (Integer s: m.states){
-	        n.states.add(s + n.states.size() + 1);
-	    }
-	    
-	    n.final_state = n.states.size() + m.states.size() - 2;
-	    return n;
-	    //*/
-	    /* ~~~ Makes new NFA, rather than mod n. I believe my above
-	        sacrifice trades non-changed original for speed. Not much gain
-	        though. And could be implemented in the other functions.
-	    
-	    NFA result = new NFA(n.states.size() + m.states.size());
-	
-	    // copy NFA n's transitions to result
-	    for (Trans t: n.transitions){
-	        result.transitions.add(new Trans(t.state_from, t.state_to,
-	            t.trans_symbol));
-	    }
-	
-	    // empty transition from final state of n to beginning state of m
-	    result.transitions.add(new Trans(n.final_state, n.states.size(), 
-	        'E'));
-	
-	    // copy NFA m's transitions to result
-	    for (Trans t: m.transitions){
-	        result.transitions.add(new Trans(t.state_from + n.states.size(),
-	            t.state_to + n.states.size(), t.trans_symbol));
-	    }
-	    
-	    result.final_state = n.final_state + m.final_state - 1;
-	    return result;
-	    */
-	}
+//	public static NFA concat(NFA n, NFA m){
+//	    ///*
+//	    m.states.remove(0); // delete m's initial state
+//	    
+//	    // copy NFA m's transitions to n, and handles connecting n & m
+//	    for (Trans t: m.transitions){
+//	        n.transitions.add(new Trans(t.state_from + n.states.size()-1,
+//	            t.state_to + n.states.size() - 1, t.trans_symbol));
+//	    }
+//	
+//	    // take m and combine to n after erasing inital m state
+//	    for (Integer s: m.states){
+//	        n.states.add(s + n.states.size() + 1);
+//	    }
+//	    
+//	    n.final_state = n.states.size() + m.states.size() - 2;
+//	    return n;
+//	}
 	
 	/*
 	    union() - Lowest Precedence regular expression operator. Thompson
@@ -205,45 +164,17 @@ public class ThompsonAlgorithm{
 	    return result;
 	}
 	
-	/*
-	    Recursive Descent Parser: Recursion To Parse the String.
-	        I have already written a Recursive Descent Parser, and so I am 
-	        giving stacks a go instead. This code snippet is the basic 
-	        structure of my functions if I were to do RDP.
 	
-	// <uni> := <concat> { |<concat> }
-	public static NFA uni(String regex, NFA n){
-	    
-	}
-	// <conact> := <kleene> { .<kleene> }
-	public static NFA concatenation(String regex, NFA n){
-	    
-	}
-	// <kleene> := <element> | <element>*
-	public static NFA kleeneStar(String regex, NFA n){
-	    
-	}
-	// <element> := letter | E | ( <uni> )
-	public static NFA element(String regex, NFA n){
-	    if (regex.charAt(0) == '('){
-	        uni(regex.substring(1),n);
-	        if(!regex.charAt(0) == ')'){
-	            System.out.println("Missing End Paranthesis.");
-	            System.exit(1);
-	        }
-	
-	    }
-	}
-	*/
 	
 	// simplify the repeated boolean condition checks
 	public static boolean alpha(char c){ return c >= 'a' && c <= 'z';}
-	public static boolean alphabet(char c){ return alpha(c) || c == 'E';}
+	public static boolean numeric(char c){ return c >= '0' && c <= '9';}
+	public static boolean alphabet(char c){ return alpha(c) || c == 'E'  || c=='.';}
 	public static boolean regexOperator(char c){
 	    return c == '(' || c == ')' || c == '*' || c == '|';
 	}
 	public static boolean validRegExChar(char c){
-	    return alphabet(c) || regexOperator(c);
+	    return alphabet(c) || regexOperator(c) || numeric(c) || true;
 	}
 	// validRegEx() - checks if given string is a valid regular expression.
 	public static boolean validRegEx(String regex){
@@ -255,12 +186,7 @@ public class ThompsonAlgorithm{
 	    return true;
 	}
 	
-	/*
-	    compile() - compile given regualr expression into a NFA using 
-	        Thompson Construction Algorithm. Will implement typical compiler
-	        stack model to simplify processing the string. This gives 
-	        descending precedence to characters on the right.
-	*/
+	
 	public static NFA compile(String regex){
 	    if (!validRegEx(regex)){
 	        System.out.println("Invalid Regular Expression Input.");
@@ -277,10 +203,10 @@ public class ThompsonAlgorithm{
 	
 	    for (int i = 0; i < regex.length(); i++){
 	        c = regex.charAt(i);
-	        if (alphabet(c)){
+	        if (!(regexOperator(c))){
 	            operands.push(new NFA(c));
 	            if (ccflag){ // concat this w/ previous
-	                operators.push('.'); // '.' used to represent concat.
+	                operators.push('.'); 
 	            }
 	            else
 	                ccflag = true;
@@ -300,7 +226,7 @@ public class ThompsonAlgorithm{
 	                    if (op == '.'){
 	                        nfa2 = operands.pop();
 	                        nfa1 = operands.pop();
-	                        operands.push(concat(nfa1, nfa2));
+	                        operands.push(concatCopy(nfa1, nfa2));
 	                    }
 	                    else if (op == '|'){
 	                        nfa2 = operands.pop();
@@ -315,10 +241,10 @@ public class ThompsonAlgorithm{
 	                                concat_stack.push(operands.pop());
 	                                operators.pop();
 	                            }
-	                            nfa1 = concat(concat_stack.pop(),
+	                            nfa1 = concatCopy(concat_stack.pop(),
 	                                concat_stack.pop());
 	                            while (concat_stack.size() > 0){
-	                               nfa1 =  concat(nfa1, concat_stack.pop());
+	                               nfa1 =  concatCopy(nfa1, concat_stack.pop());
 	                            }
 	                        }
 	                        else{
@@ -352,7 +278,7 @@ public class ThompsonAlgorithm{
 	        if (op == '.'){
 	            nfa2 = operands.pop();
 	            nfa1 = operands.pop();
-	            operands.push(concat(nfa1, nfa2));
+	            operands.push(concatCopy(nfa1, nfa2));
 	        }
 	        else if (op == '|'){
 	            nfa2 = operands.pop();
@@ -362,10 +288,10 @@ public class ThompsonAlgorithm{
 	                    concat_stack.push(operands.pop());
 	                    operators.pop();
 	                }
-	                nfa1 = concat(concat_stack.pop(),
+	                nfa1 = concatCopy(concat_stack.pop(),
 	                    concat_stack.pop());
 	                while (concat_stack.size() > 0){
-	                   nfa1 =  concat(nfa1, concat_stack.pop());
+	                   nfa1 =  concatCopy(nfa1, concat_stack.pop());
 	                }
 	            }
 	            else{

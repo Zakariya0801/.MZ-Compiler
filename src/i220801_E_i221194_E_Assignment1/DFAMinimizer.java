@@ -6,10 +6,8 @@ public class DFAMinimizer {
     public static DFA minimize(DFA dfa) {
         // Step 1: Remove unreachable states
         DFA trimmedDFA = removeUnreachableStates(dfa);
-        
         // Step 2: Partition states into distinguishable groups
         ArrayList<HashSet<Integer>> partitions = partitionStates(trimmedDFA);
-        
         // Step 3: Build the minimized DFA
         return buildMinimizedDFA(trimmedDFA, partitions);
     }
@@ -192,12 +190,12 @@ public class DFAMinimizer {
         for (int i = 0; i < partitions.size(); i++) {
             minimizedDFA.states.add(i);
         }
-        
         // Set initial state
         minimizedDFA.initial_state = stateToPartition.get(dfa.initial_state);
         
         // Set final states
         for (int finalState : dfa.final_states) {
+        	System.out.println("final = " + finalState);
             minimizedDFA.final_states.add(stateToPartition.get(finalState));
         }
         

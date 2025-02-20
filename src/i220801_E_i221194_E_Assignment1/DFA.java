@@ -37,17 +37,26 @@ public class DFA {
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
             boolean transitionFound = false;
-            
+            boolean anytransition = false;
+            int tempstate = 0;
             for (Trans t : transitions) {
-                if (t.state_from == currentState && t.trans_symbol == c) {
-                    currentState = t.state_to;
-                    transitionFound = true;
-                    break;
-                }
+            	if (t.state_from == currentState && (t.trans_symbol == c) ) {
+            		currentState = t.state_to;
+            		transitionFound = true;
+            		break;
+            	}
+            	if(t.state_from == currentState && (t.trans_symbol == '~') ) {
+            		anytransition = true;
+            		tempstate = t.state_to;
+            	}
             }
             
             if (!transitionFound) {
-                return false; // No valid transition for this character
+            	if(anytransition) {
+            		currentState = tempstate;
+            	}
+            	else
+            		return false; // No valid transition for this character
             }
         }
         
