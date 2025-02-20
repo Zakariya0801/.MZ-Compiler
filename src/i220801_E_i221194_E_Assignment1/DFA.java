@@ -1,37 +1,56 @@
 package i220801_E_i221194_E_Assignment1;
+import java.util.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-class DFA {
-    Map<Set<State>, State> dfaStates = new HashMap<>();
-    State startState;
-    Set<State> finalStates = new HashSet<>();
+public class DFA {
+    public ArrayList<Integer> states;
+    public ArrayList<Trans> transitions;
+    public int initial_state;
+    public HashSet<Integer> final_states;
+    public HashSet<Character> alphabet;
     
-    void printDFA() {
-        System.out.println("DFA Representation:");
-        System.out.println("Start State: " + startState.id);
-        System.out.print("Final States: ");
-        for (State s : finalStates) {
-            System.out.print(s.id + " ");
+    public DFA() {
+        this.states = new ArrayList<Integer>();
+        this.transitions = new ArrayList<Trans>();
+        this.initial_state = 0;
+        this.final_states = new HashSet<Integer>();
+        this.alphabet = new HashSet<Character>();
+    }
+    
+    public void setStateSize(int size) {
+        for (int i = 0; i < size; i++)
+            this.states.add(i);
+    }
+    
+    public void display() {
+        System.out.println("DFA Transitions:");
+        for (Trans t: transitions) {
+            System.out.println("(" + t.state_from + ", " + t.trans_symbol + 
+                ", " + t.state_to + ")");
         }
-        System.out.println("\nTransitions:");
+        System.out.println("Final states: " + final_states);
+    }
+    
+    // Check if a string is accepted by this DFA
+    public boolean accepts(String input) {
+        int currentState = initial_state;
         
-        for (Map.Entry<Set<State>, State> entry : dfaStates.entrySet()) {
-            Set<State> nfaStates = entry.getKey();
-            State dfaState = entry.getValue();
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            boolean transitionFound = false;
             
-            for (State state : nfaStates) {
-                for (Map.Entry<Character, List<State>> transition : state.transitions.entrySet()) {
-                    char symbol = transition.getKey();
-                    for (State nextState : transition.getValue()) {
-                        System.out.println(dfaState.id + " -- " + symbol + " --> " + nextState.id);
-                    }
+            for (Trans t : transitions) {
+                if (t.state_from == currentState && t.trans_symbol == c) {
+                    currentState = t.state_to;
+                    transitionFound = true;
+                    break;
                 }
             }
+            
+            if (!transitionFound) {
+                return false; // No valid transition for this character
+            }
         }
+        
+        return final_states.contains(currentState);
     }
 }

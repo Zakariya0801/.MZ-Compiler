@@ -38,4 +38,38 @@ public class NFA{
                 ", "+ t.state_to +")");
         }    
     }
+    
+ // Add these methods to your NFA class:
+
+    public HashSet<Integer> getEpsilonClosure(int state) {
+        HashSet<Integer> closure = new HashSet<>();
+        Stack<Integer> stack = new Stack<>();
+        
+        stack.push(state);
+        closure.add(state);
+        
+        while (!stack.isEmpty()) {
+            int current = stack.pop();
+            
+            for (Trans t : transitions) {
+                if (t.state_from == current && t.trans_symbol == 'E') {
+                    if (!closure.contains(t.state_to)) {
+                        closure.add(t.state_to);
+                        stack.push(t.state_to);
+                    }
+                }
+            }
+        }
+        
+        return closure;
+    }
+
+    public DFA toDFA() {
+        return NFAtoDFA.convert(this);
+    }
+ // Add this method to your NFA class
+    public DFA toMinimizedDFA() {
+        DFA dfa = this.toDFA();
+        return DFAMinimizer.minimize(dfa);
+    }
 }

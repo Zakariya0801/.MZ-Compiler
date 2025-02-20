@@ -11,11 +11,25 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		System.out.println("Hello");
-		String regex = "(a|b)*";
-        NFA nfa = ThompsonAlgorithm.compile(regex);
-        System.out.println("Conversion Complete");
-        nfa.display();
-        System.out.println(nfa.final_state);
+		String regex = "(a|b)(a|b)(a|b)(a|b)*";
+		List<String> strs = ThompsonAlgorithm.extractParenthesesContent(regex);
+		NFA nfa = ThompsonAlgorithm.compile(strs.get(0));
+		System.out.println(strs.get(0));
+		for(int i=1 ; i<strs.size() ; i++) {
+			System.out.println(strs.get(i));
+			nfa = ThompsonAlgorithm.concatCopy(nfa, ThompsonAlgorithm.compile(strs.get(i)));
+		}
+        
+        
+        DFA minDfa = nfa.toMinimizedDFA();
+        
+        System.out.println("\nMinimized DFA:");
+        minDfa.display();
+        
+        System.out.println("DFA accepts 'a': " + minDfa.accepts("aa"));
+        System.out.println("DFA accepts 'c': " + minDfa.accepts("c"));
+        System.out.println("DFA accepts 'ab': " + minDfa.accepts("ab"));
+        System.out.println("DFA accepts 'abb': " + minDfa.accepts("abb"));
 	}
 
 }

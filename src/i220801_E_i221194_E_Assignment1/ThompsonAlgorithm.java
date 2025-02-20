@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.*;
 public class ThompsonAlgorithm{
     /*
@@ -23,6 +25,20 @@ public class ThompsonAlgorithm{
 	    kleene() - Highest Precedence regular expression operator. Thompson
 	        algoritm for kleene star.
 	*/
+	
+	public static List<String> extractParenthesesContent(String input) {
+        List<String> result = new ArrayList<>();
+        Pattern pattern = Pattern.compile("\\((.*?)\\)\\*?");
+        Matcher matcher = pattern.matcher(input);
+        
+        while (matcher.find()) {
+            String match = matcher.group(0); // Get the full matched substring
+            result.add(match);
+            System.out.println(match);
+        }
+        
+        return result;
+    }
 	public static NFA kleene(NFA n){
 	    NFA result = new NFA(n.states.size()+2);
 	    result.transitions.add(new Trans(0, 1, 'E')); // new trans for q0
@@ -50,10 +66,66 @@ public class ThompsonAlgorithm{
 	/*
 	    concat() - Thompson algorithm for concatenation. Middle Precedence.
 	*/
+	public static NFA concatCopy(NFA n, NFA m){
+	    ///*
+	    NFA ans = new NFA();
+	    // copy NFA m's transitions to n, and handles connecting n & m
+	    int maxi = 0;
+	    for (Trans t: n.transitions){
+	        ans.transitions.add(new Trans(t.state_from, t.state_to, t.trans_symbol));
+	        if(!ans.states.contains(t.state_from)) {
+	        	ans.states.add(t.state_from);
+	        	if(t.state_from > maxi) maxi = t.state_from;
+	        }
+	        if(!ans.states.contains(t.state_to)) {
+	        	ans.states.add(t.state_to);
+	        	if(t.state_to > maxi) maxi = t.state_to;
+	        }
+	    }
+	    maxi++;
+	    ans.transitions.add(new Trans(n.final_state,maxi, 'E'));
+	    
+	    for (Trans t: m.transitions){
+	        ans.transitions.add(new Trans(maxi+t.state_from, maxi+t.state_to, t.trans_symbol));
+	        if(!ans.states.contains(maxi+t.state_from))
+	        	ans.states.add(maxi+t.state_from);
+	        if(!ans.states.contains(maxi+t.state_to))
+	        	ans.states.add(maxi+t.state_to);
+	    }
+	    
+	    ans.final_state = m.final_state+maxi;
+	    return ans;
+	    //*/
+	    /* ~~~ Makes new NFA, rather than mod n. I believe my above
+	        sacrifice trades non-changed original for speed. Not much gain
+	        though. And could be implemented in the other functions.
+	    
+	    NFA result = new NFA(n.states.size() + m.states.size());
+	
+	    // copy NFA n's transitions to result
+	    for (Trans t: n.transitions){
+	        result.transitions.add(new Trans(t.state_from, t.state_to,
+	            t.trans_symbol));
+	    }
+	
+	    // empty transition from final state of n to beginning state of m
+	    result.transitions.add(new Trans(n.final_state, n.states.size(), 
+	        'E'));
+	
+	    // copy NFA m's transitions to result
+	    for (Trans t: m.transitions){
+	        result.transitions.add(new Trans(t.state_from + n.states.size(),
+	            t.state_to + n.states.size(), t.trans_symbol));
+	    }
+	    
+	    result.final_state = n.final_state + m.final_state - 1;
+	    return result;
+	    */
+	}
 	public static NFA concat(NFA n, NFA m){
 	    ///*
 	    m.states.remove(0); // delete m's initial state
-	
+	    
 	    // copy NFA m's transitions to n, and handles connecting n & m
 	    for (Trans t: m.transitions){
 	        n.transitions.add(new Trans(t.state_from + n.states.size()-1,
